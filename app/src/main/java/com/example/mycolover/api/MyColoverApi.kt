@@ -5,12 +5,13 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 /**
- * 뷰티 아이템 관련 API
- * 실제 서버가 생기기 전까지는 Mock 데이터를 활용할 예정
+ * Supabase 전용 API 인터페이스
+ * 테이블 이름인 'beauty_items'가 엔드포인트가 됩니다.
  */
 interface MyColoverApi {
-    @GET("beauty/items")
+    @GET("beauty_items")
     suspend fun getBeautyItems(
-        @Query("colorType") colorType: String? = null
+        @Query("personal_color") colorType: String? = null,
+        @Query("select") select: String = "*"
     ): List<BeautyItem>
 }

@@ -3,12 +3,11 @@ package com.example.mycolover.data
 import com.google.gson.annotations.SerializedName
 
 /**
- * 레거시의 Goods 모델을 컴팩트하게 재구성
- * 포트폴리오 면접 시 핵심 도메인 지식을 보여주기 위한 모델
+ * 서버의 beauty_items 테이블 구조와 완벽히 매칭
  */
 data class BeautyItem(
     @SerializedName("id") 
-    val id: String,
+    val id: Int, // 서버에서 bigint(int8)이므로 Int로 변경
     
     @SerializedName("name") 
     val name: String,
@@ -22,5 +21,6 @@ data class BeautyItem(
     @SerializedName("category") 
     val category: String,
     
-    val personalColor: PersonalColor
+    @SerializedName("personal_color")
+    val personalColor: PersonalColor // Enum 매칭을 위해 SerializedName 추가
 )
