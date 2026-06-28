@@ -1,17 +1,16 @@
 package com.example.mycolover.api
 
-import com.example.mycolover.data.Photo
+import com.example.mycolover.data.BeautyItem
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 /**
- * 신규 프로젝트용 API 인터페이스
- * 레거시의 AuthorizationAPIs 구조를 Hilt 주입 방식으로 개선
+ * 뷰티 아이템 관련 API
+ * 실제 서버가 생기기 전까지는 Mock 데이터를 활용할 예정
  */
 interface MyColoverApi {
-    @GET("v2/list")
-    suspend fun getPhotos(
-        @Query("page") page: Int,
-        @Query("limit") limit: Int
-    ): List<Photo>
+    @GET("beauty/items")
+    suspend fun getBeautyItems(
+        @Query("colorType") colorType: String? = null
+    ): List<BeautyItem>
 }
