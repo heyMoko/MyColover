@@ -23,45 +23,41 @@ fun BeautyListScreen(viewModel: BeautyViewModel) {
     // 찜한 아이템 ID 목록 관찰
     val favoriteIds by viewModel.favoriteIds.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("MyColover 뷰티 추천") })
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            // 컬러 필터 칩 리스트
-            LazyRow(
-                modifier = Modifier.padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    FilterChip(
-                        selected = selectedColor == null,
-                        onClick = { viewModel.fetchItems(null) },
-                        label = { Text("전체") }
-                    )
-                }
-                items(PersonalColor.entries) { color ->
-                    FilterChip(
-                        selected = selectedColor == color,
-                        onClick = { viewModel.fetchItems(color) },
-                        label = { Text(color.displayName) }
-                    )
-                }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(title = { Text("MyColover 뷰티 추천") })
+        
+        // 컬러 필터 칩 리스트
+        LazyRow(
+            modifier = Modifier.padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                FilterChip(
+                    selected = selectedColor == null,
+                    onClick = { viewModel.fetchItems(null) },
+                    label = { Text("전체") }
+                )
             }
+            items(PersonalColor.entries) { color ->
+                FilterChip(
+                    selected = selectedColor == color,
+                    onClick = { viewModel.fetchItems(color) },
+                    label = { Text(color.displayName) }
+                )
+            }
+        }
 
-            // 아이템 리스트
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                items(items) { item ->
-                    BeautyItemCard(
-                        item = item,
-                        isFavorite = favoriteIds.contains(item.id),
-                        onFavoriteClick = { viewModel.toggleFavorite(item) }
-                    )
-                }
+        // 아이템 리스트
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            items(items) { item ->
+                BeautyItemCard(
+                    item = item,
+                    isFavorite = favoriteIds.contains(item.id),
+                    onFavoriteClick = { viewModel.toggleFavorite(item) }
+                )
             }
         }
     }

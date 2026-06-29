@@ -28,9 +28,12 @@ class BeautyViewModel @Inject constructor(
     private val _selectedColor = MutableStateFlow<PersonalColor?>(null)
     val selectedColor: StateFlow<PersonalColor?> = _selectedColor
 
+    // 찜한 아이템 전체 목록
+    val favoriteItems: StateFlow<List<FavoriteItem>> = repository.getAllFavorites()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     // 찜한 아이템 ID 리스트 (UI에서 하트 색상을 결정하기 위함)
-    // stateIn을 써서 Flow를 StateFlow로 변환하고 화면이 닫혀도 5초간 유지함
-    val favoriteIds: StateFlow<Set<Int>> = repository.getAllFavorites()
+    val favoriteIds: StateFlow<Set<Int>> = favoriteItems
         .map { list -> list.map { it.id }.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
@@ -55,11 +58,11 @@ class BeautyViewModel @Inject constructor(
             val isFav = repository.isFavorite(item.id)
             if (isFav) {
                 repository.removeFavorite(
-                    FavoriteItem(item.id, item.name, item.brand, item.imageUrl)
+                    FavoriteItem(item.id, item.name, item.brand, item.imageUrl, item.category, item.personalColor)
                 )
             } else {
                 repository.addFavorite(
-                    FavoriteItem(item.id, item.name, item.brand, item.imageUrl)
+                    FavoriteItem(item.id, item.name, item.brand, item.imageUrl, item.category, item.personalColor)
                 )
             }
         }

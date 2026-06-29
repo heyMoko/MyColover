@@ -25,7 +25,8 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "mycolover_db"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
