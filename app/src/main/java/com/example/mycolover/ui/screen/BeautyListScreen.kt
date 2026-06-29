@@ -19,6 +19,9 @@ import com.example.mycolover.ui.viewmodel.BeautyViewModel
 fun BeautyListScreen(viewModel: BeautyViewModel) {
     val items by viewModel.items.collectAsState()
     val selectedColor by viewModel.selectedColor.collectAsState()
+    
+    // 찜한 아이템 ID 목록 관찰
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
 
     Scaffold(
         topBar = {
@@ -53,7 +56,11 @@ fun BeautyListScreen(viewModel: BeautyViewModel) {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 items(items) { item ->
-                    BeautyItemCard(item = item)
+                    BeautyItemCard(
+                        item = item,
+                        isFavorite = favoriteIds.contains(item.id),
+                        onFavoriteClick = { viewModel.toggleFavorite(item) }
+                    )
                 }
             }
         }
