@@ -17,18 +17,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.mycolover.data.PersonalColor
 import com.example.mycolover.ui.screen.BeautyDetailScreen
 import com.example.mycolover.ui.screen.BeautyListScreen
 import com.example.mycolover.ui.screen.FavoriteListScreen
 import com.example.mycolover.ui.screen.Screen
+import com.example.mycolover.ui.screen.SelfTestScreen
 import com.example.mycolover.ui.theme.MyColoverTheme
 import com.example.mycolover.ui.viewmodel.BeautyViewModel
+import com.example.mycolover.ui.viewmodel.SelfTestViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: BeautyViewModel by viewModels()
+    private val beautyViewModel: BeautyViewModel by viewModels()
+    private val selfTestViewModel: SelfTestViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,15 +40,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyColoverTheme {
                 val navController = rememberNavController()
-                val items = listOf(Screen.Home, Screen.Favorites)
+                val items = listOf(Screen.Home, Screen.SelfTest, Screen.Favorites)
 
                 Scaffold(
                     bottomBar = {
-                        // 현재 경로가 상세 화면일 때는 바텀바를 숨김
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
                         
-                        if (currentRoute == Screen.Home.route || currentRoute == Screen.Favorites.route) {
+                        // 상세 화면이 아닐 때만 바텀바 표시
+                        if (items.any { it.route == currentRoute }) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
                                 items.forEach { screen ->
@@ -74,13 +78,26 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.Home.route) {
                             BeautyListScreen(
-                                viewModel = viewModel,
+                                viewModel = beautyViewModel,
                                 onItemClick = { id -> navController.navigate(Screen.Detail.createRoute(id)) }
+                            )
+                        }
+                        composable(Screen.SelfTest.route) {
+                            SelfTestScreen(
+                                viewModel = selfTestViewModel,
+                                onResultClick = { colorName ->
+                                    // 진단 결과를 뷰모델에 반영하고 홈으로 이동
+                                    val color = PersonalColor.valueOf(colorName)
+                                    beautyViewModel.onColorFilterChange(color)
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.SelfTest.route) { inclusive = true }
+                                    }
+                                }
                             )
                         }
                         composable(Screen.Favorites.route) {
                             FavoriteListScreen(
-                                viewModel = viewModel,
+                                viewModel = beautyViewModel,
                                 onItemClick = { id -> navController.navigate(Screen.Detail.createRoute(id)) }
                             )
                         }
@@ -91,7 +108,7 @@ class MainActivity : ComponentActivity() {
                             val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
                             BeautyDetailScreen(
                                 itemId = itemId,
-                                viewModel = viewModel,
+                                viewModel = beautyViewModel,
                                 onBackClick = { navController.popBackStack() }
                             )
                         }
