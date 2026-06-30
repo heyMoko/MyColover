@@ -46,6 +46,10 @@ class BeautyViewModel @Inject constructor(
         .map { list -> list.map { it.id }.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
+    // 상세 화면용 아이템 정보
+    private val _selectedItem = MutableStateFlow<BeautyItem?>(null)
+    val selectedItem: StateFlow<BeautyItem?> = _selectedItem
+
     init {
         // [현업 기술] 검색어와 필터가 바뀔 때마다 서버 요청을 보냄
         viewModelScope.launch {
@@ -66,6 +70,19 @@ class BeautyViewModel @Inject constructor(
 
     fun onColorFilterChange(color: PersonalColor?) {
         _selectedColor.value = color
+    }
+
+    // 아이템 상세 정보 가져오기
+    fun fetchItemDetail(itemId: Int) {
+        viewModelScope.launch {
+            // 현재 리스트에 있는 상품이라면 서버 호출 없이 바로 가져옴
+            val localItem = _items.value.find { it.id == itemId }
+            if (localItem != null) {
+                _selectedItem.value = localItem
+            } else {
+                // 리스트에 없다면 (예: 딥링크 진입 등) 추후 서버에서 1개만 가져오는 API 연동 가능
+            }
+        }
     }
 
     private suspend fun fetchItems(color: PersonalColor?, query: String?) {

@@ -16,14 +16,16 @@ import com.example.mycolover.ui.viewmodel.BeautyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteListScreen(viewModel: BeautyViewModel) {
+fun FavoriteListScreen(
+    viewModel: BeautyViewModel,
+    onItemClick: (Int) -> Unit
+) {
     val favoriteItems by viewModel.favoriteItems.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(title = { Text("나의 찜 목록") })
         
         if (favoriteItems.isEmpty()) {
-            // 찜한 상품이 없을 때 보여줄 화면
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -36,7 +38,6 @@ fun FavoriteListScreen(viewModel: BeautyViewModel) {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 items(favoriteItems) { item ->
-                    // FavoriteItem을 BeautyItem으로 변환해서 카드 재사용
                     val beautyItem = BeautyItem(
                         id = item.id,
                         name = item.name,
@@ -48,8 +49,9 @@ fun FavoriteListScreen(viewModel: BeautyViewModel) {
                     
                     BeautyItemCard(
                         item = beautyItem,
-                        isFavorite = true, // 찜 목록이므로 항상 true
-                        onFavoriteClick = { viewModel.toggleFavorite(beautyItem) }
+                        isFavorite = true,
+                        onFavoriteClick = { viewModel.toggleFavorite(beautyItem) },
+                        onItemClick = { onItemClick(item.id) }
                     )
                 }
             }

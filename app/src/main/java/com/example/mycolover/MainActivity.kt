@@ -11,10 +11,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.mycolover.ui.screen.BeautyDetailScreen
 import com.example.mycolover.ui.screen.BeautyListScreen
 import com.example.mycolover.ui.screen.FavoriteListScreen
 import com.example.mycolover.ui.screen.Screen
@@ -37,39 +40,60 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     bottomBar = {
-                        NavigationBar {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
-                            items.forEach { screen ->
-                                NavigationBarItem(
-                                    icon = { Icon(screen.icon, contentDescription = screen.title) },
-                                    label = { Text(screen.title) },
-                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                                    onClick = {
-                                        navController.navigate(screen.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
+                        // 현재 경로가 상세 화면일 때는 바텀바를 숨김
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentRoute = navBackStackEntry?.destination?.route
+                        
+                        if (currentRoute == Screen.Home.route || currentRoute == Screen.Favorites.route) {
+                            NavigationBar {
+                                val currentDestination = navBackStackEntry?.destination
+                                items.forEach { screen ->
+                                    NavigationBarItem(
+                                        icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                        label = { Text(screen.title) },
+                                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                                        onClick = {
+                                            navController.navigate(screen.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                                restoreState = true
                                             }
-                                            launchSingleTop = true
-                                            restoreState = true
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                     }
                 ) { innerPadding ->
-                    // 중요: 전체 패딩 대신 '하단 바' 여백만 적용하여 상단 공백 중복 방지
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Home.route,
                         modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
                     ) {
                         composable(Screen.Home.route) {
-                            BeautyListScreen(viewModel = viewModel)
+                            BeautyListScreen(
+                                viewModel = viewModel,
+                                onItemClick = { id -> navController.navigate(Screen.Detail.createRoute(id)) }
+                            )
                         }
                         composable(Screen.Favorites.route) {
-                            FavoriteListScreen(viewModel = viewModel)
+                            FavoriteListScreen(
+                                viewModel = viewModel,
+                                onItemClick = { id -> navController.navigate(Screen.Detail.createRoute(id)) }
+                            )
+                        }
+                        composable(
+                            route = Screen.Detail.route,
+                            arguments = listOf(navArgument("itemId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+                            BeautyDetailScreen(
+                                itemId = itemId,
+                                viewModel = viewModel,
+                                onBackClick = { navController.popBackStack() }
+                            )
                         }
                     }
                 }

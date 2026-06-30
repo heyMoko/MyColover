@@ -18,7 +18,10 @@ import com.example.mycolover.ui.viewmodel.BeautyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BeautyListScreen(viewModel: BeautyViewModel) {
+fun BeautyListScreen(
+    viewModel: BeautyViewModel,
+    onItemClick: (Int) -> Unit
+) {
     val items by viewModel.items.collectAsState()
     val selectedColor by viewModel.selectedColor.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -29,7 +32,7 @@ fun BeautyListScreen(viewModel: BeautyViewModel) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(title = { Text("MyColover 뷰티 추천") })
 
-        // 🔍 검색창 추가 (현업 스타일)
+        // 🔍 검색창
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { viewModel.onSearchQueryChange(it) },
@@ -72,7 +75,8 @@ fun BeautyListScreen(viewModel: BeautyViewModel) {
                 BeautyItemCard(
                     item = item,
                     isFavorite = favoriteIds.contains(item.id),
-                    onFavoriteClick = { viewModel.toggleFavorite(item) }
+                    onFavoriteClick = { viewModel.toggleFavorite(item) },
+                    onItemClick = { onItemClick(item.id) }
                 )
             }
         }

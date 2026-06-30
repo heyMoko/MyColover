@@ -11,4 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
     object Home : Screen("home", "홈", Icons.Filled.Home)
     object Favorites : Screen("favorites", "찜", Icons.Filled.Favorite)
+    object Detail : Screen("detail/{itemId}", "상세", Icons.Filled.Home) {
+        fun createRoute(itemId: Int) = "detail/$itemId"
+    }
 }
