@@ -59,10 +59,11 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
+                    // 중요: 전체 패딩 대신 '하단 바' 여백만 적용하여 상단 공백 중복 방지
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Home.route,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
                     ) {
                         composable(Screen.Home.route) {
                             BeautyListScreen(viewModel = viewModel)

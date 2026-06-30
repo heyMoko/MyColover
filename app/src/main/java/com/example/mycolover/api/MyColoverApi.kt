@@ -12,6 +12,7 @@ interface MyColoverApi {
     @GET("beauty_items")
     suspend fun getBeautyItems(
         @Query("personal_color") colorType: String? = null,
+        @Query("name") nameQuery: String? = null,
         @Query("select") select: String = "*"
     ): List<BeautyItem>
 }

@@ -13,8 +13,8 @@ import javax.inject.Singleton
  * 서버(API)와 로컬 DB(Room)를 모두 관리하는 통합 저장소
  */
 interface BeautyRepository {
-    // 서버 데이터 가져오기
-    suspend fun getItemsByColor(color: PersonalColor?): List<BeautyItem>
+    // 서버 데이터 가져오기 (컬러 필터 + 검색어 조합)
+    suspend fun getItems(color: PersonalColor? = null, query: String? = null): List<BeautyItem>
 
     // 로컬 찜 목록 관련
     fun getAllFavorites(): Flow<List<FavoriteItem>>
@@ -26,12 +26,15 @@ interface BeautyRepository {
 @Singleton
 class BeautyRepositoryImpl @Inject constructor(
     private val api: MyColoverApi,
-    private val favoriteDao: FavoriteDao // Hilt가 자동으로 주입해줌
+    private val favoriteDao: FavoriteDao
 ) : BeautyRepository {
     
-    override suspend fun getItemsByColor(color: PersonalColor?): List<BeautyItem> {
-        val queryColor = color?.let { "eq.${it.name}" }
-        return api.getBeautyItems(colorType = queryColor)
+    override suspend fun getItems(color: PersonalColor?, query: String?): List<BeautyItem> {
+        val colorFilter = color?.let { "eq.${it.name}" }
+        // 수파베이스 ilike 문법: *검색어* (앞뒤에 별표를 붙여 '포함' 검색)
+        val nameFilter = if (!query.isNullOrBlank()) "ilike.*$query*" else null
+        
+        return api.getBeautyItems(colorType = colorFilter, nameQuery = nameFilter)
     }
 
     override fun getAllFavorites(): Flow<List<FavoriteItem>> {
